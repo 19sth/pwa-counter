@@ -1,0 +1,26 @@
+{
+  "short_name": "Counter",
+  "name": "Counter",
+  "description": "Track your counters with notifications",
+  "start_url": "/pwa-counter",
+  "display": "standalone",
+  "theme_color": "#fefefe",
+  "background_color": "#fefefe",
+  "icons": [
+    {
+      "src": "https://fakeimg.pl/16x16/fde047/000/?font=bebas&font_size=16&text=C",
+      "sizes": "16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "https://fakeimg.pl/192x192/fde047/000/?font=bebas&font_size=192&text=C",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://fakeimg.pl/512x512/fde047/000/?font=bebas&font_size=512&text=C",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
