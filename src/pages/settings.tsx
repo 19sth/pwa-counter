@@ -20,6 +20,7 @@ import {
 import {
   requestNotificationPermission,
   scheduleNotifications,
+  sendImmediateNotification,
 } from "../utils/notifications";
 
 export default function Settings() {
@@ -49,6 +50,13 @@ export default function Settings() {
   const handleRequestPermission = async () => {
     const granted = await requestNotificationPermission();
     setPermissionStatus(granted ? "granted" : "denied");
+  };
+
+  const handleTestNotification = async () => {
+    const granted = await requestNotificationPermission();
+    setPermissionStatus(granted ? "granted" : "denied");
+    if (!granted) return;
+    sendImmediateNotification(counters);
   };
 
   const handleSave = async () => {
@@ -110,6 +118,20 @@ export default function Settings() {
       </FormControl>
 
       <MuTakoz height="8rem" />
+
+      <Typography variant="caption" color="text.disabled" display="block" className="mb-4">
+        Notifications will not work when you close the browser.
+      </Typography>
+
+      <Button
+        className="w-full"
+        variant="outlined"
+        size="large"
+        onClick={handleTestNotification}
+        sx={{ mb: 2 }}
+      >
+        Test Notification Now
+      </Button>
 
       <Button
         className="w-full"

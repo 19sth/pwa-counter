@@ -1,14 +1,14 @@
 import { ICounter } from "../redux/sliceCounters";
 import { NotificationInterval, NOTIFICATION_INTERVALS } from "./constants";
 
-let swRegistration: ServiceWorkerRegistration | null = null;
+let notificationTimer: ReturnType<typeof setInterval> | null = null;
 
 export async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   try {
-    swRegistration = await navigator.serviceWorker.register("/pwa-counter/sw.js");
+    await navigator.serviceWorker.register("/pwa-counter/sw.js");
   } catch (e) {
-    console.warn("SW registration failed:", e);
+    console.warn("[SW] Registration failed:", e);
   }
 }
 
@@ -20,39 +20,36 @@ export async function requestNotificationPermission(): Promise<boolean> {
   return result === "granted";
 }
 
-export function scheduleNotifications(
-  interval: NotificationInterval,
-  counters: ICounter[]
-) {
-  const entry = NOTIFICATION_INTERVALS.find((i) => i.value === interval);
-  const intervalMs = entry ? entry.ms : 0;
-
-  if (!swRegistration || !swRegistration.active) {
-    navigator.serviceWorker?.ready.then((reg) => {
-      reg.active?.postMessage({
-        type: "SCHEDULE_NOTIFICATION",
-        intervalMs,
-        counters,
-      });
-    });
-    return;
-  }
-
-  swRegistration.active.postMessage({
-    type: "SCHEDULE_NOTIFICATION",
-    intervalMs,
-    counters,
-  });
-}
-
-export function sendImmediateNotification(counters: ICounter[]) {
+function showNotification(counters: ICounter[]) {
   if (!("Notification" in window) || Notification.permission !== "granted") return;
   const body =
     counters.length > 0
       ? counters.map((c) => `${c.name}: ${c.count}`).join(" | ")
-      : "You have no counters yet.";
+      : "Open the app to check your counters.";
   new Notification("Counter", {
     body,
     icon: "https://fakeimg.pl/192x192/fde047/000/?font=bebas&font_size=192&text=C",
   });
+}
+
+export function scheduleNotifications(
+  interval: NotificationInterval,
+  counters: ICounter[]
+) {
+  if (notificationTimer) {
+    clearInterval(notificationTimer);
+    notificationTimer = null;
+  }
+
+  const entry = NOTIFICATION_INTERVALS.find((i) => i.value === interval);
+  const intervalMs = entry ? entry.ms : 0;
+  if (!intervalMs) return;
+
+  notificationTimer = setInterval(() => {
+    showNotification(counters);
+  }, intervalMs);
+}
+
+export function sendImmediateNotification(counters: ICounter[]) {
+  showNotification(counters);
 }
